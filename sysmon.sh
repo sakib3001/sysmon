@@ -1,19 +1,14 @@
 #!/bin/bash
-ram_usage_limit=1
-cpu_usage_limit=0.5
-disk_usage_limit=50
+ram_usage_limit=$1
+cpu_usage_limit=$2
+disk_usage_limit=$2
 
 check_cpu_usages() {
     echo -e "==> Checking the CPU usages"
-    used_cpu=$(mpstat 1 2 | awk '/^Average/ {
-        # Process the average CPU usage line
-        idle_cpu = $12
-        cpu_usages = 100 - idle_cpu
-        cpu_usages_value = substr(cpu_usages,1,length(cpu_usages)-1)
-        printf "%.2f\n", cpu_usages_value
-    }')
+    
+    # 100 - idle_cpu = used_cpu
+    used_cpu=$(mpstat 1 2 | awk '/^Average/ { printf "%.2f", 100 - $12 }')
 
-    # Floating point comparison; bc returns 1 or 0    
     if [ $(echo "${used_cpu} >= ${cpu_usage_limit}" | bc) -eq 1 ]; then
         echo -e "Sending Mail: CPU Used is High: ${used_cpu}%"
     else
@@ -81,8 +76,8 @@ done
 
 # Call the functions
 # check_ram_usages
-# check_cpu_usages
+check_cpu_usages
 # check_network_connections
-check_disk_usage
+# check_disk_usage
 
 
