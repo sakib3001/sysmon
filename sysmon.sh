@@ -1,7 +1,12 @@
 #!/bin/bash
-ram_usage_limit=$1
-cpu_usage_limit=$2
-disk_usage_limit=$2
+cpu_usage_limit=$1
+ram_usage_limit=$2
+disk_usage_limit=$3
+
+if [[ -z $cpu_usage_limit || -z $ram_usage_limit || -z $disk_usage_limit   ]]; then 
+echo "Enter all arguments: <cpu_usage_limit> <ram_usage_limit> <disk_usage_limit>"
+exit 1
+fi
 
 check_cpu_usages() {
     echo -e "==> Checking the CPU usages"
@@ -57,7 +62,7 @@ check_disk_usage() {
 
 IFS=';' read -r -a disk_usages_array <<< "${disk_usages[@]}"
 
-# Print the full lines from the array
+# Print the full lines from the array disk_usages_array
 for i in "${disk_usages_array[@]}"; do
     disk_usages=$(echo "$i" | awk '{
     used_value = substr($4,1,length($4)-1)
@@ -75,9 +80,9 @@ done
 }
 
 # Call the functions
-# check_ram_usages
+check_ram_usages
 check_cpu_usages
-# check_network_connections
-# check_disk_usage
+check_disk_usage
+check_network_connections
 
 
